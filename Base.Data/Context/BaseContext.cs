@@ -34,9 +34,24 @@ namespace Base.Data.Context
         public static string GetConnectionString(string connectionString)
         {
             var defaultConnection = ConfigurationManager.ConnectionStrings[connectionString]?.ConnectionString;
-            var connection = defaultConnection ?? connectionString;
+            var coreConnection = GetCoreConnectionString();
+            var connection = defaultConnection ?? coreConnection ?? connectionString;
 
             return connection;
+        }
+
+        private static string GetCoreConnectionString()
+        {
+            var appSettingsPath = Directory.GetCurrentDirectory() + "/appsettings.json";
+
+            if (File.Exists(appSettingsPath))
+            {
+                var builder = new ConfigurationBuilder().AddJsonFile(appSettingsPath);
+                var configuration = builder.Build();
+                return configuration.GetConnectionString("Sys10Context");
+            }
+
+            return "";
         }
 
         public int SaveChanges()

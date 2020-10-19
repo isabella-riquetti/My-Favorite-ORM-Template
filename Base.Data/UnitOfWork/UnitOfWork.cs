@@ -18,14 +18,23 @@ namespace Base.Data.UnitOfWork
         public Repository.Base.IRepositoryBase<ModelBase> RepositoryBase { get; set; }
         public IStoredProcedureRepository StoredProcedure { get; set; }
 
-        public UnitOfWork(IRepositoryBase<ModelBase> repositoryBase,
-            IStoredProcedureRepository storedProcedure)
+        public UnitOfWork()
         {
-            RepositoryBase = repositoryBase;
-            StoredProcedure = storedProcedure;
-
-            _context = RepositoryBase.GetContext();
+            _context = new BaseContext();
+            var bulkWorker = new BulkWorker<ModelBase>(_context);
+            RepositoryBase = new Repository.Base.RepositoryBase<ModelBase>(_context, bulkWorker);
+            StoredProcedure = new StoredProcedureRepository(_context);
         }
+
+        // TODO: Injeção de dependência
+        //public UnitOfWork(IRepositoryBase<ModelBase> repositoryBase,
+        //    IStoredProcedureRepository storedProcedure)
+        //{
+        //    RepositoryBase = repositoryBase;
+        //    StoredProcedure = storedProcedure;
+
+        //    _context = RepositoryBase.GetContext();
+        //}
 
         private bool _disposed;
 
